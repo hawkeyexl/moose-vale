@@ -36,6 +36,16 @@ Vale applies the last matching section and drops the rest. A section like `[docs
 BasedOnStyles = Voices, Direct, Moose, Google
 ```
 
+## Files Vale cannot parse
+
+A file with broken frontmatter, or an MDX table the parser rejects, aborts the whole run. No level setting downgrades that. Keep such files out with `--glob`, and name each one so the exclusion stays narrow:
+
+```bash
+vale --glob='!{test/fixtures/broken.md,docs/generated/**}' .
+```
+
+In the GitHub Action, pass the same value through `vale_flags`.
+
 ## Dials
 
 Local config wins over the package. Common overrides:
