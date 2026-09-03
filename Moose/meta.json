@@ -1,0 +1,4 @@
+{
+  "feed": "https://github.com/hawkeyexl/moose-vale/releases.atom",
+  "vale_version": ">=3.20.0"
+}

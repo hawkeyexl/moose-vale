@@ -1,0 +1,26 @@
+name: Release
+
+# Push a tag like v0.2.0 and this attaches Moose.zip to the GitHub release.
+# Consumers point at releases/latest/download/Moose.zip, so a new tag is a
+# rollout to every repo on its next `vale sync`.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build package
+        run: zip -r Moose.zip Moose
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Moose.zip
+          generate_release_notes: true
