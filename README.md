@@ -1,6 +1,6 @@
 # moose-vale
 
-One Vale package that gives every hawkeyexl repo the same voice. It enables the [Voices](https://github.com/jdkato/voices) core and the **Direct** voice, and adds one house rule. Nothing else.
+One Vale package that gives every hawkeyexl repo the same voice. It carries the [Voices](https://github.com/jdkato/voices) core and the **Direct** voice, vendored with a few fixes, and adds one house rule. Nothing else.
 
 Direct means no hedging, no preamble, and sentences under 25 words.
 
@@ -60,15 +60,24 @@ Moose.EmDash = NO
 
 | Style | Source | What it checks |
 |-------|--------|----------------|
-| `Voices` | jdkato/voices | Banned words, puffery, weasel words, weak verbs, throat clearing, recaps |
-| `Direct` | jdkato/voices | Hedging, preamble, sentence length |
+| `Voices` | vendored from jdkato/voices | Banned words, puffery, weasel words, weak verbs, throat clearing, recaps |
+| `Direct` | vendored from jdkato/voices | Hedging, preamble, sentence length |
 | `Moose` | this repo | Em dashes. Rewrite the sentence instead of swapping punctuation |
 
-Voices depends on [Std](https://github.com/vale-cli/Std). Sync pulls it in. It stays installed but not enabled.
+The Voices and Direct rules are copied into this package, not fetched. The package has no dependency on Voices or Std, so `vale sync` installs three styles and nothing else.
 
-## Bump Voices
+## Fixes carried against upstream
 
-`Moose/.vale.ini` pins the Voices release. Change the tag there, run the tests, and cut a new release. Every consumer picks it up on its next `vale sync`.
+`NOTICE` lists the upstream commit and every change. In short:
+
+- `Voices.WeakVerbs` has one replacement per inflection, so the auto-fix is always grammatical.
+- `Voices.InflatedWords` keeps the matched word's case when it replaces it.
+- `Voices.ColonReveal` and `Voices.BinaryContrast` cannot match across a line break, and `BinaryContrast` accepts hyphenated phrases.
+- `Direct.Length` inlines its parent rule instead of extending `Std`.
+
+## Refresh from upstream
+
+Copy the rule files from `jdkato/voices` into `Moose/styles/Voices/` and `Moose/styles/Direct/`, re-apply the fixes above, update the commit hash in `NOTICE`, run the tests, and cut a new release. Every consumer picks it up on its next `vale sync`.
 
 ## Release
 
@@ -88,4 +97,4 @@ printf 'StylesPath = styles\nMinAlertLevel = suggestion\nPackages = %s\n' "$PWD/
 cd /tmp/consumer && vale sync && vale --no-exit bad.md && vale good.md
 ```
 
-`bad.md` reports `Direct.Hedging`, `Direct.Preamble`, `Direct.Length`, and `Moose.EmDash`. `good.md` reports nothing.
+`bad.md` reports `Direct.Hedging`, `Direct.Preamble`, `Direct.Length`, `Moose.EmDash`, `Voices.InflatedWords`, `Voices.WeakVerbs`, and `Voices.BinaryContrast`. `good.md` reports nothing.

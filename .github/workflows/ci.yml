@@ -37,11 +37,14 @@ jobs:
           echo "--- effective config"
           vale ls-config
 
-      - name: Nested packages resolved
+      - name: Only the vendored styles are installed
         working-directory: consumer
         run: |
-          for s in Voices Direct Moose Std; do
+          for s in Voices Direct Moose; do
             test -d "styles/$s" || { echo "missing style: $s"; exit 1; }
+          done
+          for s in Std Coach GenZ Simple; do
+            test ! -d "styles/$s" || { echo "unexpected style: $s"; exit 1; }
           done
           vale ls-config | grep -q '"Voices"' || { echo "Voices not enabled"; exit 1; }
           vale ls-config | grep -q '"Direct"' || { echo "Direct not enabled"; exit 1; }
@@ -52,7 +55,7 @@ jobs:
         run: |
           vale --no-exit --output=JSON bad.md > bad.json
           cat bad.json
-          for check in Direct.Hedging Direct.Preamble Direct.Length Moose.EmDash; do
+          for check in Direct.Hedging Direct.Preamble Direct.Length Moose.EmDash Voices.InflatedWords Voices.WeakVerbs Voices.BinaryContrast; do
             jq -e --arg c "$check" '[.[][] | select(.Check == $c)] | length > 0' bad.json > /dev/null \
               || { echo "expected alert missing: $check"; exit 1; }
           done
@@ -60,6 +63,15 @@ jobs:
       - name: good.md is clean
         working-directory: consumer
         run: vale good.md
+
+      - name: Auto-fixes keep their case and grammar
+        working-directory: consumer
+        run: |
+          vale --no-exit --output=JSON bad.md > bad.json
+          jq -e '[.[][] | select(.Check == "Voices.InflatedWords" and .Action.Params[0] == "Use")] | length > 0' bad.json > /dev/null \
+            || { echo "InflatedWords fix lost its capital"; exit 1; }
+          jq -e '[.[][] | select(.Check == "Voices.WeakVerbs" and .Action.Params[0] == "decide")] | length > 0' bad.json > /dev/null \
+            || { echo "WeakVerbs fix is not decide"; exit 1; }
 
       - name: README passes its own voice
         run: |
