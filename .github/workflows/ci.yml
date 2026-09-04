@@ -40,10 +40,10 @@ jobs:
       - name: Only the vendored styles are installed
         working-directory: consumer
         run: |
-          for s in Voices Direct Moose; do
+          for s in Voices Direct Moose Std; do
             test -d "styles/$s" || { echo "missing style: $s"; exit 1; }
           done
-          for s in Std Coach GenZ Simple; do
+          for s in Coach GenZ Simple; do
             test ! -d "styles/$s" || { echo "unexpected style: $s"; exit 1; }
           done
           vale ls-config | grep -q '"Voices"' || { echo "Voices not enabled"; exit 1; }
@@ -72,6 +72,19 @@ jobs:
             || { echo "InflatedWords fix lost its capital"; exit 1; }
           jq -e '[.[][] | select(.Check == "Voices.WeakVerbs" and .Action.Params[0] == "decide")] | length > 0' bad.json > /dev/null \
             || { echo "WeakVerbs fix is not decide"; exit 1; }
+
+      - name: Std.Usage.GenderedTerms leaves the word "name" alone
+        working-directory: consumer
+        run: |
+          mkdir -p std && printf 'StylesPath = ../styles
+MinAlertLevel = suggestion
+[*.md]
+BasedOnStyles = Std
+' > std/.vale.ini
+          printf 'Set the file name and the parameter name.
+' > std/name.md
+          cd std && vale --no-exit --output=line name.md | tee out.txt
+          ! grep -q 'GenderedTerms' out.txt || { echo "GenderedTerms still flags name"; exit 1; }
 
       - name: README passes its own voice
         run: |

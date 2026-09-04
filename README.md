@@ -63,8 +63,9 @@ Moose.EmDash = NO
 | `Voices` | vendored from jdkato/voices | Banned words, puffery, weasel words, weak verbs, throat clearing, recaps |
 | `Direct` | vendored from jdkato/voices | Hedging, preamble, sentence length |
 | `Moose` | this repo | Em dashes. Rewrite the sentence instead of swapping punctuation |
+| `Std` | vendored from vale-cli/Std | Installed, not enabled. `Direct.Length` extends its sentence-length rule, and you can enable any `Std.*` rule yourself |
 
-The Voices and Direct rules are copied into this package, not fetched. The package has no dependency on Voices or Std, so `vale sync` installs three styles and nothing else.
+The Voices, Direct, and Std rules are copied into this package, not fetched. The package has no nested dependency, so `vale sync` installs these four styles and nothing else.
 
 ## Fixes carried against upstream
 
@@ -73,11 +74,11 @@ The Voices and Direct rules are copied into this package, not fetched. The packa
 - `Voices.WeakVerbs` has one replacement per inflection, so the auto-fix is always grammatical.
 - `Voices.InflatedWords` keeps the matched word's case when it replaces it.
 - `Voices.ColonReveal` and `Voices.BinaryContrast` cannot match across a line break, and `BinaryContrast` accepts hyphenated phrases.
-- `Direct.Length` inlines its parent rule instead of extending `Std`.
+- `Std.Usage.GenderedTerms` no longer carries a stray swap entry that flagged every occurrence of the word "name".
 
 ## Refresh from upstream
 
-Copy the rule files from `jdkato/voices` into `Moose/styles/Voices/` and `Moose/styles/Direct/`, re-apply the fixes above, update the commit hash in `NOTICE`, run the tests, and cut a new release. Every consumer picks it up on its next `vale sync`.
+Copy the rule files from `jdkato/voices` into `Moose/styles/Voices/` and `Moose/styles/Direct/`, and from the `vale-cli/Std` release into `Moose/styles/Std/`. Re-apply the fixes above, update the versions in `NOTICE`, run the tests, and cut a new release. Every consumer picks it up on its next `vale sync`.
 
 ## Release
 
