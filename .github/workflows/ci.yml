@@ -82,6 +82,13 @@ jobs:
           cd std && vale --no-exit --output=line name.md | tee out.txt
           if grep -q 'GenderedTerms' out.txt; then echo "GenderedTerms still flags name"; exit 1; fi
 
+      - name: Vendored notices match the root NOTICE
+        run: |
+          for d in Voices Direct; do
+            cmp NOTICE "Moose/styles/$d/NOTICE" || { echo "Moose/styles/$d/NOTICE is stale"; exit 1; }
+          done
+          test -f Moose/styles/Std/LICENSE && test -f Moose/styles/Std/NOTICE
+
       - name: README passes its own voice
         run: |
           vale sync
