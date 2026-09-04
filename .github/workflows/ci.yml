@@ -76,15 +76,11 @@ jobs:
       - name: Std.Usage.GenderedTerms leaves the word "name" alone
         working-directory: consumer
         run: |
-          mkdir -p std && printf 'StylesPath = ../styles
-MinAlertLevel = suggestion
-[*.md]
-BasedOnStyles = Std
-' > std/.vale.ini
-          printf 'Set the file name and the parameter name.
-' > std/name.md
+          mkdir -p std
+          printf 'StylesPath = ../styles\nMinAlertLevel = suggestion\n[*.md]\nBasedOnStyles = Std\n' > std/.vale.ini
+          printf 'Set the file name and the parameter name.\n' > std/name.md
           cd std && vale --no-exit --output=line name.md | tee out.txt
-          ! grep -q 'GenderedTerms' out.txt || { echo "GenderedTerms still flags name"; exit 1; }
+          if grep -q 'GenderedTerms' out.txt; then echo "GenderedTerms still flags name"; exit 1; fi
 
       - name: README passes its own voice
         run: |
